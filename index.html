@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SoilArk - Estate Management Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -1829,19 +1829,328 @@
             .ops-grid {
                 grid-template-columns: 1fr;
             }
+
+            .field-detail-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
             .sidebar {
-                width: 200px;
+                width: 100%;
+                height: auto;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 200;
+                transition: left 0.3s ease;
+                max-height: 100vh;
+                overflow-y: auto;
+            }
+
+            .sidebar.mobile-open {
+                left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .top-actions {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: nowrap;
+            }
+
+            .search-box {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .add-task-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            .notification-btn {
+                padding: 8px;
             }
 
             .content-area {
                 padding: 16px;
+                padding-top: 16px;
             }
 
             .metrics-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .metric-value {
+                font-size: 24px;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            /* Mobile Menu Button */
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background: var(--primary-green);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 20px;
+                flex-shrink: 0;
+            }
+
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 199;
+            }
+
+            .mobile-overlay.active {
+                display: block;
+            }
+
+            /* Modals on mobile */
+            .field-modal,
+            .task-modal,
+            .add-task-modal,
+            .ops-detail-modal {
+                width: 95%;
+                max-width: 95%;
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 16px;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            .task-modal-header {
+                padding: 16px;
+            }
+
+            .task-modal-body {
+                padding: 16px;
+            }
+
+            .task-modal-actions {
+                padding: 16px;
+                flex-direction: column;
+            }
+
+            .task-modal-btn {
+                width: 100%;
+            }
+
+            /* Field detail view on mobile */
+            .field-detail-header {
+                padding: 16px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .field-detail-title-section {
+                width: 100%;
+            }
+
+            .field-detail-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .field-action-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .field-detail-content {
+                padding: 16px;
+            }
+
+            .field-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Notifications on mobile */
+            .notifications-panel {
+                right: 0;
+                left: 0;
+                top: 70px;
+                width: 100%;
+                max-height: calc(100vh - 80px);
+                border-radius: 12px 12px 0 0;
+            }
+
+            /* Form elements on mobile */
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .priority-options {
+                flex-direction: column;
+            }
+
+            /* Operations on mobile */
+            .ops-summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .breakdown-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .field-breakdown-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .transaction-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            /* Map on mobile */
+            .map-view {
+                flex-direction: column;
+            }
+
+            .map-container {
+                height: 400px;
+            }
+
+            .field-label {
+                font-size: 12px;
+            }
+
+            .map-controls {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .map-control-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            /* Task cards on mobile */
+            .task-card {
+                padding: 12px;
+            }
+
+            .task-card-title {
+                font-size: 14px;
+            }
+
+            .task-card-desc {
+                font-size: 12px;
+            }
+
+            /* Kanban columns on mobile */
+            .column-tasks {
+                max-height: 400px;
+            }
+
+            /* Sidebar adjustments */
+            .estate-stats {
+                font-size: 11px;
+            }
+
+            .stat-item {
+                font-size: 11px;
+            }
+
+            /* Touch-friendly sizing */
+            .nav-item {
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+
+            .task-item,
+            .history-item,
+            .breakdown-item {
+                min-height: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-title {
+                font-size: 20px;
+            }
+
+            .task-modal-title {
+                font-size: 20px;
+            }
+
+            .field-detail-title {
+                font-size: 20px;
+            }
+
+            .metric-card {
+                padding: 16px;
+            }
+
+            .breakdown-card {
+                padding: 16px;
+            }
+
+            .field-detail-card {
+                padding: 16px;
+            }
+
+            .ops-modal-body {
+                padding: 16px;
+            }
+        }
+
+        /* Desktop-only elements */
+        @media (min-width: 769px) {
+            .mobile-menu-btn {
+                display: none;
+            }
+
+            .mobile-overlay {
+                display: none !important;
             }
         }
 
@@ -1867,8 +2176,11 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div class="user-info">
@@ -1935,6 +2247,7 @@
         <div class="main-content">
             <div class="top-bar">
                 <div class="top-actions">
+                    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
                     <input type="text" class="search-box" placeholder="Search fields, tasks, assets...">
                     <button class="notification-btn" onclick="openNotifications()">
                         <span class="notification-icon">🔔</span>
@@ -1950,7 +2263,7 @@
                 <!-- Map View -->
                 <div class="map-view active">
                     <div class="map-container">
-                        <img src="uploads/LandArkPrev.png" alt="Estate Map" class="map-image">
+                        <img src="./uploads/LandArkPrev.png" alt="Estate Map" class="map-image">
                         <div class="field-overlay" style="top: 11%; left: 27%; width: 21%; height: 18%;" onclick="showFieldDetail('North Pasture')">
                             <div class="field-label">North Pasture</div>
                         </div>
@@ -3252,36 +3565,59 @@
             console.log('switchContentView called:', viewId);
         }
 
-        // Drag and drop for kanban
+        // Drag and drop for kanban (desktop only)
         let draggedElement = null;
 
-        document.querySelectorAll('.task-card').forEach(card => {
-            card.addEventListener('dragstart', function(e) {
-                draggedElement = this;
-                this.style.opacity = '0.5';
-            });
+        // Only enable drag and drop on desktop
+        if (window.innerWidth > 768) {
+            enableDragAndDrop();
+        }
 
-            card.addEventListener('dragend', function(e) {
-                this.style.opacity = '1';
-            });
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                enableDragAndDrop();
+            } else {
+                disableDragAndDrop();
+            }
         });
 
-        document.querySelectorAll('.column-tasks').forEach(column => {
-            column.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                const afterElement = getDragAfterElement(column, e.clientY);
-                if (afterElement == null) {
-                    column.appendChild(draggedElement);
-                } else {
-                    column.insertBefore(draggedElement, afterElement);
-                }
+        function enableDragAndDrop() {
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.setAttribute('draggable', 'true');
+                
+                card.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+
+                card.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                });
             });
 
-            column.addEventListener('drop', function(e) {
-                e.preventDefault();
-                updateColumnCounts();
+            document.querySelectorAll('.column-tasks').forEach(column => {
+                column.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(column, e.clientY);
+                    if (afterElement == null) {
+                        column.appendChild(draggedElement);
+                    } else {
+                        column.insertBefore(draggedElement, afterElement);
+                    }
+                });
+
+                column.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    updateColumnCounts();
+                });
             });
-        });
+        }
+
+        function disableDragAndDrop() {
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.setAttribute('draggable', 'false');
+            });
+        }
 
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
@@ -3766,6 +4102,30 @@
         window.addEventListener('load', function() {
             renderNotifications();
         });
+
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        // Close mobile menu when switching views
+        const originalSwitchView = switchView;
+        switchView = function(view) {
+            originalSwitchView.call(this, view);
+            closeMobileMenu();
+        };
 
         // Initialize column counts
         updateColumnCounts();
