@@ -2199,27 +2199,27 @@
                     </div>
                     <div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Farm Overview</div>
                     <div class="estate-stats">
-                        <div class="stat-item">
+                        <div class="stat-item" style="cursor: pointer;" onclick="drillDownEstateStat('total')">
                             <span>Total Hectares</span>
                             <span class="stat-value">567ha</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item" style="cursor: pointer;" onclick="drillDownEstateStat('grassland')">
                             <span>Grassland</span>
                             <span class="stat-value">360ha</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item" style="cursor: pointer;" onclick="drillDownEstateStat('crops')">
                             <span>Crops</span>
                             <span class="stat-value">125ha</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item" style="cursor: pointer;" onclick="drillDownEstateStat('forestry')">
                             <span>Forestry</span>
                             <span class="stat-value">65ha</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item" style="cursor: pointer;" onclick="drillDownEstateStat('buildings')">
                             <span>Buildings</span>
                             <span class="stat-value">17ha</span>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item" style="cursor: pointer;" onclick="drillDownEstateStat('livestock')">
                             <span>Livestock</span>
                             <span class="stat-value">400</span>
                         </div>
@@ -2577,15 +2577,9 @@
                                 <option>Maintenance</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <span class="filter-label">Asset:</span>
-                            <select class="filter-select" onchange="updateOperationsData()">
-                                <option>All Assets</option>
-                                <option>Livestock</option>
-                                <option>Machinery</option>
-                                <option>Buildings</option>
-                            </select>
-                        </div>
+                        <button class="add-task-btn" onclick="openAddCategoryModal()" style="margin-left: auto;">
+                            + Add Category
+                        </button>
                     </div>
 
                     <div class="metrics-grid">
@@ -2832,6 +2826,21 @@
                 <button class="expand-field-btn" onclick="expandFieldToTab()">
                     ⛶ Open Full Details
                 </button>
+
+                <div class="modal-actions">
+                    <button class="action-btn" onclick="alert('Add Note - Quick note entry with auto-date')">
+                        📝 Add Note
+                    </button>
+                    <button class="action-btn" onclick="alert('Change Usage - Would open usage type selector')">
+                        ✏️ Change Usage
+                    </button>
+                    <button class="action-btn" onclick="alert('View Full History - Would show complete field timeline')">
+                        🕒 Full History
+                    </button>
+                    <button class="action-btn" onclick="alert('Create Paddock - Would enable paddock drawing mode')">
+                        ➕ Create Paddock
+                    </button>
+                </div>
 
                 <div class="section-title">⚡ Live Tasks</div>
                 <div class="task-list">
@@ -3193,6 +3202,7 @@
 
         let currentFieldName = '';
         let currentTaskData = null;
+        let previousView = 'overview'; // Track which view we came from
 
         // Task data structure
         const taskDatabase = {
@@ -3265,8 +3275,12 @@
             const data = fieldData[currentFieldName];
             if (!data) return;
 
-            // Hide map view, show field detail view
+            // Hide all main content views
             document.querySelector('.map-view').classList.remove('active');
+            document.querySelector('.task-view').classList.remove('active');
+            document.querySelector('.ops-view').classList.remove('active');
+            
+            // Show field detail view
             document.getElementById('fieldDetailView').classList.add('active');
 
             // Update tab header
@@ -3344,10 +3358,21 @@
             }
         }
 
-        // Close field tab and return to map
+        // Close field tab and return to previous view
         function closeFieldTab() {
             document.getElementById('fieldDetailView').classList.remove('active');
-            document.querySelector('.map-view').classList.add('active');
+            
+            // Return to whichever view we came from
+            if (previousView === 'map') {
+                document.querySelector('.map-view').classList.add('active');
+            } else if (previousView === 'tasks') {
+                document.querySelector('.task-view').classList.add('active');
+            } else if (previousView === 'operations') {
+                document.querySelector('.ops-view').classList.add('active');
+            } else {
+                // Default to map if we don't know
+                document.querySelector('.map-view').classList.add('active');
+            }
         }
 
         // Open task detail modal
@@ -3466,6 +3491,16 @@
         // Show field detail modal
         function showFieldDetail(fieldName) {
             currentFieldName = fieldName;
+            
+            // Track which view we're currently in
+            if (document.querySelector('.map-view').classList.contains('active')) {
+                previousView = 'map';
+            } else if (document.querySelector('.task-view').classList.contains('active')) {
+                previousView = 'tasks';
+            } else if (document.querySelector('.ops-view').classList.contains('active')) {
+                previousView = 'operations';
+            }
+            
             const modal = document.getElementById('fieldModal');
             const data = fieldData[fieldName];
 
@@ -4126,6 +4161,77 @@
             originalSwitchView.call(this, view);
             closeMobileMenu();
         };
+
+        // Estate stat drill-down functions
+        function drillDownEstateStat(statType) {
+            const statData = {
+                'total': {
+                    title: 'Total Estate Breakdown',
+                    subtitle: '567 hectares',
+                    items: [
+                        { name: 'Grassland', value: '360ha', percent: '63.5%' },
+                        { name: 'Crops', value: '125ha', percent: '22.0%' },
+                        { name: 'Forestry', value: '65ha', percent: '11.5%' },
+                        { name: 'Buildings & Yards', value: '17ha', percent: '3.0%' }
+                    ]
+                },
+                'grassland': {
+                    title: 'Grassland Breakdown',
+                    subtitle: '360 hectares',
+                    items: [
+                        { name: 'Permanent Pasture', value: '240ha', detail: '12 fields' },
+                        { name: 'Temporary Grassland', value: '85ha', detail: '4 fields' },
+                        { name: 'Meadow', value: '35ha', detail: '2 fields' }
+                    ]
+                },
+                'crops': {
+                    title: 'Crop Breakdown',
+                    subtitle: '125 hectares',
+                    items: [
+                        { name: 'Winter Wheat', value: '62ha', detail: 'South Crops' },
+                        { name: 'Spring Barley', value: '38ha', detail: 'East Field' },
+                        { name: 'Oilseed Rape', value: '25ha', detail: 'North Crops' }
+                    ]
+                },
+                'forestry': {
+                    title: 'Forestry Breakdown',
+                    subtitle: '65 hectares',
+                    items: [
+                        { name: 'Mixed Woodland', value: '45ha', detail: 'Established' },
+                        { name: 'New Planting', value: '20ha', detail: 'Year 2' }
+                    ]
+                },
+                'buildings': {
+                    title: 'Buildings & Infrastructure',
+                    subtitle: '17 hectares',
+                    items: [
+                        { name: 'Main Barn Complex', value: '8ha', detail: 'Operational' },
+                        { name: 'Yards & Access', value: '6ha', detail: 'Hardstanding' },
+                        { name: 'Residential', value: '3ha', detail: '2 properties' }
+                    ]
+                },
+                'livestock': {
+                    title: 'Livestock Breakdown',
+                    subtitle: '400 head',
+                    items: [
+                        { name: 'Cattle', value: '280 head', detail: 'Main Herd A & B' },
+                        { name: 'Sheep', value: '120 head', detail: 'Breeding Ewes' }
+                    ]
+                }
+            };
+
+            const data = statData[statType];
+            if (!data) return;
+
+            alert(`${data.title}\n${data.subtitle}\n\n${data.items.map(i => 
+                `${i.name}: ${i.value}${i.detail ? ' - ' + i.detail : ''}${i.percent ? ' (' + i.percent + ')' : ''}`
+            ).join('\n')}\n\nIn the full app, this would open a detailed breakdown modal.`);
+        }
+
+        // Add custom cost category modal
+        function openAddCategoryModal() {
+            alert('Add Custom Cost Category\n\nThis would open a form to create a new cost category with:\n- Category name\n- Color coding\n- Budget allocation\n- Type (Cost/Revenue)\n\nExamples:\n- Fertilizer costs\n- Utilities\n- Insurance\n- Custom categories specific to your operation');
+        }
 
         // Initialize column counts
         updateColumnCounts();
