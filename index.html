@@ -6618,6 +6618,9 @@
         // Switch main navigation view
         // Overview View Switching (Map vs Calendar)
         function switchOverviewView(view) {
+            // Store the overview view preference
+            navigationContext.overviewView = view;
+            
             // Update buttons
             document.querySelectorAll('.view-switch-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -6812,21 +6815,91 @@
             alert('Add New Calendar Event\n\nThis would open a form to create:\n- Tasks (with priority, assignee, field)\n- Staff holidays (with date range)\n- Machinery service reminders\n- Field activities (planting, harvest, treatments)\n- Custom events\n\nAll events automatically appear on calendar and sync with their respective modules.');
         }
 
+        // Store navigation context
+        let navigationContext = {
+            currentField: null,
+            previousView: null,
+            calendarView: 'month',
+            overviewView: 'map'
+        };
+
         function switchView(view) {
+            // Close any open field detail view first
+            const fieldDetailView = document.getElementById('fieldDetailView');
+            if (fieldDetailView && fieldDetailView.classList.contains('active')) {
+                closeFieldTab();
+            }
+            
+            // Close any open modals
+            document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                modal.classList.remove('active');
+            });
+
+            // Store the view we're switching from
+            navigationContext.previousView = getCurrentView();
+
             // Update sidebar navigation
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
-            event.target.closest('.nav-item').classList.add('active');
             
-            // Hide all content views
-            document.querySelectorAll('.map-view, .task-view, .staff-view, .machinery-view, .ops-view').forEach(view => {
-                view.classList.remove('active');
+            // Find and activate the clicked nav item
+            const clickedItem = event?.target?.closest('.nav-item');
+            if (clickedItem) {
+                clickedItem.classList.add('active');
+            } else {
+                // If called programmatically, find the right nav item
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    const itemView = item.getAttribute('onclick')?.match(/switchView\('(\w+)'\)/)?.[1];
+                    if (itemView === view) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            
+            // Hide ALL content views including calendar
+            document.querySelectorAll('.map-view, .calendar-view, .task-view, .staff-view, .machinery-view, .ops-view').forEach(v => {
+                v.classList.remove('active');
             });
+            
+            // Hide overview view switcher by default
+            const overviewSwitcher = document.querySelector('.overview-view-switcher');
+            if (overviewSwitcher) {
+                overviewSwitcher.style.display = 'none';
+            }
             
             // Show the appropriate content view
             if (view === 'overview') {
-                document.querySelector('.map-view').classList.add('active');
+                // Show overview view switcher
+                if (overviewSwitcher) {
+                    overviewSwitcher.style.display = 'flex';
+                }
+                
+                // Restore last overview view (map or calendar)
+                if (navigationContext.overviewView === 'calendar') {
+                    document.querySelector('.calendar-view').classList.add('active');
+                    // Update switcher buttons
+                    document.querySelectorAll('.view-switch-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.textContent.includes('Calendar')) {
+                            btn.classList.add('active');
+                        }
+                    });
+                } else {
+                    document.querySelector('.map-view').classList.add('active');
+                    // Update switcher buttons
+                    document.querySelectorAll('.view-switch-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.textContent.includes('Map')) {
+                            btn.classList.add('active');
+                        }
+                    });
+                }
+                
+                // If we have a stored field context, optionally highlight it
+                if (navigationContext.currentField) {
+                    highlightFieldOnMap(navigationContext.currentField);
+                }
             } else if (view === 'tasks') {
                 document.querySelector('.task-view').classList.add('active');
             } else if (view === 'staff') {
@@ -6839,7 +6912,46 @@
                 document.querySelector('.ops-view').classList.add('active');
             }
             
-            console.log('Switched to:', view);
+            // Close mobile menu if open
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && sidebar.classList.contains('mobile-open')) {
+                toggleMobileMenu();
+            }
+            
+            console.log('Switched to:', view, 'from:', navigationContext.previousView);
+        }
+
+        function getCurrentView() {
+            if (document.querySelector('.map-view')?.classList.contains('active')) return 'map';
+            if (document.querySelector('.calendar-view')?.classList.contains('active')) return 'calendar';
+            if (document.querySelector('.task-view')?.classList.contains('active')) return 'tasks';
+            if (document.querySelector('.staff-view')?.classList.contains('active')) return 'staff';
+            if (document.querySelector('.machinery-view')?.classList.contains('active')) return 'machinery';
+            if (document.querySelector('.ops-view')?.classList.contains('active')) return 'operations';
+            return null;
+        }
+
+        function highlightFieldOnMap(fieldName) {
+            // Remove any existing highlights
+            document.querySelectorAll('.field-overlay').forEach(overlay => {
+                overlay.style.border = '3px solid var(--primary-light)';
+                overlay.style.background = 'rgba(13, 148, 136, 0.1)';
+            });
+            
+            // Highlight the specific field if visible
+            document.querySelectorAll('.field-overlay').forEach(overlay => {
+                const label = overlay.querySelector('.field-label');
+                if (label && label.textContent === fieldName) {
+                    overlay.style.border = '4px solid #f59e0b';
+                    overlay.style.background = 'rgba(245, 158, 11, 0.2)';
+                    
+                    // Remove highlight after 3 seconds
+                    setTimeout(() => {
+                        overlay.style.border = '3px solid var(--primary-light)';
+                        overlay.style.background = 'rgba(13, 148, 136, 0.1)';
+                    }, 3000);
+                }
+            });
         }
 
         // Switch content area view - DEPRECATED, now handled by switchView
@@ -8963,6 +9075,15 @@
             sidebar.classList.remove('mobile-open');
             overlay.classList.remove('active');
         }
+
+        // Initialize overview view switcher visibility on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const overviewSwitcher = document.querySelector('.overview-view-switcher');
+            if (overviewSwitcher) {
+                // Show switcher initially since we start in overview
+                overviewSwitcher.style.display = 'flex';
+            }
+        });
 
         // Close mobile menu when switching views
         const originalSwitchView = switchView;
